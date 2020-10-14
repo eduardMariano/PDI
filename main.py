@@ -18,11 +18,6 @@ def main_cnn():
     train_model = CNN.train(train_X, train_label, valid_X, valid_label)
     test_eval = CNN.test(test_X, test_Y_one_hot)
 
-    print('Test loss:', test_eval[0])
-    print('Test accuracy:', test_eval[1])
-
-    # CNN.plot(train_model)
-
     predicted_classes = CNN.predict(test_X)
     predicted_classes = CNN.format_predict(predicted_classes)
     CNN.print_predict(predicted_classes, test_X, test_Y)

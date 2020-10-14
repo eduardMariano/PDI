@@ -71,7 +71,6 @@ class CNN:
         return np.argmax(np.round(predicted_classes), axis=1)
 
     def print_predict(self, predicted_classes, test_X, test_Y):
-        predicted_classes = np.argmax(np.round(predicted_classes), axis=1)
         correct = np.where(predicted_classes == test_Y)[0]
         print("Found %d correct labels" % len(correct))
         for i, correct in enumerate(correct[:9]):
