@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow
 from keras.datasets import fashion_mnist
 from tensorflow.python.keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
@@ -7,18 +8,36 @@ from keras.layers.advanced_activations import LeakyReLU
 from keras.losses import categorical_crossentropy
 from keras.optimizers import Adam
 from keras.utils import to_categorical
+from keras.utils import get_file
+from keras.preprocessing import image_dataset_from_directory
 from sklearn.metrics import classification_report
 import matplotlib.pyplot as plt
+import os
+import pathlib
 
 class CNN:
-    def __init__(self, batch, epochs, nCls):
+    def __init__(self, batch, epochs, num_classes):
         self.model = Sequential()
         self.batch_size = batch
         self.epochs = epochs
-        self.num_classes = nCls
+        self.num_classes = num_classes
 
     def load_data(self):
         return fashion_mnist.load_data()
+
+    def load_dataset(self, dataset, type):
+        data_dir = get_file(origin=dataset, fname='', untar=True)
+        data_dir = pathlib.Path(data_dir)
+        return image_dataset_from_directory(data_dir,
+          validation_split=0.2,
+          subset=type,
+          seed=123,
+          image_size=(180, 180),
+          batch_size=self.batch_size)
+
+    def set_num_classes(self, train_ds):
+        class_names = train_ds.class_names
+        return len(class_names)
 
     def labels(self, train_Y):
         cls = np.unique(train_Y)

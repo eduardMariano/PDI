@@ -15,8 +15,8 @@ def main_cnn():
                                                                   random_state=13)
     CNN.init_model()
     CNN.compile()
-    train_model = CNN.train(train_X, train_label, valid_X, valid_label)
-    test_eval = CNN.test(test_X, test_Y_one_hot)
+    CNN.train(train_X, train_label, valid_X, valid_label)
+    CNN.test(test_X, test_Y_one_hot)
 
     predicted_classes = CNN.predict(test_X)
     predicted_classes = CNN.format_predict(predicted_classes)
