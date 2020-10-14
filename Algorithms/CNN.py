@@ -26,14 +26,11 @@ class CNN:
         return fashion_mnist.load_data()
 
     def load_dataset(self, dataset, type):
-        data_dir = get_file(origin=dataset, fname='', untar=True)
-        data_dir = pathlib.Path(data_dir)
-        return image_dataset_from_directory(data_dir,
-          validation_split=0.2,
-          subset=type,
-          seed=123,
-          image_size=(180, 180),
-          batch_size=self.batch_size)
+        data_dir = get_file(origin=dataset, fname='NRID20130902', untar=True)
+        return pathlib.Path(data_dir)
+
+
+        # return image_dataset_from_directory(data_dir, validation_split=0.2, subset=type, seed=123, image_size=(180, 180),batch_size=self.batch_size)
 
     def set_num_classes(self, train_ds):
         class_names = train_ds.class_names
@@ -77,8 +74,7 @@ class CNN:
         return self.model
 
     def train(self, train_X, train_label, valid_X, valid_label):
-        return self.model.fit(train_X, train_label, batch_size=self.batch_size, epochs=self.epochs, verbose=1,
-                                          validation_data=(valid_X, valid_label))
+        return self.model.fit(train_X, train_label, batch_size=self.batch_size, epochs=self.epochs, verbose=1, validation_data=(valid_X, valid_label))
 
     def test(self, test_X, test_Y_one_hot):
         return self.model.evaluate(test_X, test_Y_one_hot, verbose=0)
