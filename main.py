@@ -7,7 +7,7 @@ def main_mlp():
 
 def main_cnn():
     CNN = cnn.CNN(64, 20, 10)
-    train_ds = CNN.load_dataset("https://drive.google.com/file/d/1gqHi76hvQkoicJA11o9F6tqQmOep-1kA/view?usp=sharing", "training")
+    train_ds = CNN.load_dataset("https://mega.nz/file/c4ZlhQ4a#6yFoZfIulmNnbeLVjXwE17zjSBiMQowKUIvak8DNdSM", "training")
 
     print(train_ds)
 
