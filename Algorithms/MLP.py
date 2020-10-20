@@ -1,4 +1,4 @@
-from keras.datasets import fashion_mnist
+from keras.datasets import fashion_mnist, cifar10
 from tensorflow.python.keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.utils import to_categorical
@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 class Multilayer_Perceptron:
-    def __init__(self, layers_size, epochs, batch_size, activation, neurons):
+    def __init__(self, layers_size, epochs, batch_size, activation, neurons, data_size):
         self.hidden_layer = layers_size
         self.model = []
         self.batch_size = batch_size
@@ -15,7 +15,8 @@ class Multilayer_Perceptron:
         self.num_classes = 0
         self.activation = activation
         self.num_neurons = neurons
-        self.dim_data = []
+        self.data_dim = [],
+        self.data_size = data_size
 
     def load_data(self):
         return fashion_mnist.load_data()
@@ -29,9 +30,9 @@ class Multilayer_Perceptron:
         return self.formatData(train_X, test_X)
 
     def reshape(self, train, test):
-        self.dim_data = np.prod(train.shape[1:])
-        train = train.reshape(train.shape[0], self.dim_data)
-        test = test.reshape(train.shape[0], self.dim_data)
+        self.data_dim = np.prod(train.shape[1:])
+        train = train.reshape(train.shape[0], self.data_dim)
+        test = test.reshape(test.shape[0], self.data_dim)
         return train, test
 
     def formatData(self, train, test):
@@ -41,14 +42,16 @@ class Multilayer_Perceptron:
 
     def init_model(self):
         self.model = Sequential()
-        self.model.add(Flatten(input_shape=self.dim_data))
-        for i in self.hidden_layer:
-            self.model.add(Dense(self.num_neurons, activation=self.activation))
+        for i in range(self.hidden_layer):
+            if i == 0:
+                self.model.add(Dense(self.num_neurons, activation=self.activation, input_shape=(self.data_dim, )))
+            elif i > 0:
+                self.model.add(Dense(self.num_neurons, activation=self.activation))
             self.model.add(Dropout(0.5))
         self.model.add(Dense(self.num_classes, activation='softmax'))
 
     def compile(self):
-        self.model.compile(loss="sparse_categorical_crossentropy", optimizer='rmsprop', metrics=['accuracy'])
+        self.model.compile(loss="categorical_crossentropy", optimizer='rmsprop', metrics=['accuracy'])
         return self.model
 
     def train(self, train_X, train_Y, test_X, test_Y):
@@ -63,15 +66,26 @@ class Multilayer_Perceptron:
     def format_predict(self, predicted_classes):
         return np.argmax(np.round(predicted_classes), axis=1)
 
-    def print_predict(self, predicted_classes, test_X, test_Y):
-        correct = np.where(predicted_classes == test_Y)[0]
-        print("Found %d correct labels" % len(correct))
-        for i, correct in enumerate(correct[:9]):
-            plt.subplot(3, 3, i + 1)
-            plt.imshow(test_X[correct].reshape(28, 28), cmap='gray', interpolation='none')
-            plt.title("Predicted {}, Class {}".format(predicted_classes[correct], test_Y[correct]))
-            plt.tight_layout()
-
     def report(self, predicted_classes, test_Y):
         target_names = ["Class {}".format(i) for i in range(self.num_classes)]
         print(classification_report(test_Y, predicted_classes, target_names=target_names))
+
+    def plot(self, history):
+        acc = history.history['accuracy']
+        val_acc = history.history['val_accuracy']
+
+        loss = history.history['loss']
+        val_loss = history.history['val_loss']
+
+        epochs = range(self.epochs)
+
+        plt.plot(epochs, acc, 'bo', label='Training accuracy')
+        plt.plot(epochs, val_acc, 'b', label='Validation accuracy')
+        plt.title('Training and validation accuracy')
+        plt.legend()
+        plt.figure()
+        plt.plot(epochs, loss, 'bo', label='Training loss')
+        plt.plot(epochs, val_loss, 'b', label='Validation loss')
+        plt.title('Training and validation loss')
+        plt.legend()
+        plt.show()

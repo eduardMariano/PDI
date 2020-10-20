@@ -1,5 +1,5 @@
 import numpy as np
-from keras.datasets import fashion_mnist
+from keras.datasets import fashion_mnist, cifar10, cifar100
 from tensorflow.python.keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.layers import Conv2D, MaxPooling2D
@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
 
 class CNN:
-    def __init__(self, layers_size, epochs, batch_size, activation, neurons):
+    def __init__(self, layers_size, epochs, batch_size, activation, neurons, data_dim, data_size):
         self.hidden_layer = layers_size
         self.model = []
         self.batch_size = batch_size
@@ -18,10 +18,16 @@ class CNN:
         self.num_classes = 0
         self.activation = activation
         self.num_neurons = neurons
-        self.dim_data = []
+        self.data_dim = data_dim
+        self.data_size = data_size
 
-    def load_data(self):
-        return fashion_mnist.load_data()
+    def load_data(self, type):
+        if type == 1:
+            return fashion_mnist.load_data()
+        elif type == 2:
+            return cifar10.load_data()
+        elif type == 3:
+            return cifar100.load_data()
 
     def set_num_classes(self, train):
         self.classes = np.unique(train)
@@ -35,9 +41,8 @@ class CNN:
         return train_test_split(train_X, to_categorical(train_Y), test_size=0.2, random_state=13)
 
     def reshape(self, train, test):
-        self.dim_data = np.prod(train.shape[1:])
-        train = train.reshape(train.shape[0], self.dim_data)
-        test = test.reshape(train.shape[0], self.dim_data)
+        train = train.reshape(-1, self.data_dim, self.data_dim, self.data_size)
+        test = test.reshape(-1, self.data_dim, self.data_dim, self.data_size)
         return train, test
 
     def formatData(self, train, test):
@@ -45,11 +50,11 @@ class CNN:
         test = test.astype('float32')
         return (train / 255), (test / 255)
 
-    def init_model(self, data_dim):
+    def init_model(self):
         self.model = Sequential()
-        for i in self.hidden_layer:
+        for i in range(self.hidden_layer):
             if i == 0:
-                self.model.add(Conv2D(self.num_neurons, kernel_size=(3, 3), activation=self.activation, padding='same', input_shape=self.data_dim))
+                self.model.add(Conv2D(self.num_neurons, kernel_size=(3, 3), activation=self.activation, padding='same', input_shape=(self.data_dim, self.data_dim, self.data_size)))
             elif i > 0:
                 self.model.add(Conv2D(self.num_neurons, kernel_size=(3, 3), activation=self.activation, padding='same'))
             self.model.add(LeakyReLU(alpha=0.1))
@@ -78,15 +83,6 @@ class CNN:
 
     def format_predict(self, predicted_classes):
         return np.argmax(np.round(predicted_classes), axis=1)
-
-    def print_predict(self, predicted_classes, test_X, test_Y):
-        correct = np.where(predicted_classes == test_Y)[0]
-        print("Found %d correct labels" % len(correct))
-        for i, correct in enumerate(correct[:9]):
-            plt.subplot(3, 3, i + 1)
-            plt.imshow(test_X[correct].reshape(28, 28), cmap='gray', interpolation='none')
-            plt.title("Predicted {}, Class {}".format(predicted_classes[correct], test_Y[correct]))
-            plt.tight_layout()
 
     def report(self, predicted_classes, test_Y):
         target_names = ["Class {}".format(i) for i in range(self.num_classes)]
