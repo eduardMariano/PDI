@@ -81,10 +81,8 @@ class CNN:
     def predict(self, test_X):
         return self.model.predict(test_X)
 
-    def format_predict(self, predicted_classes):
-        return np.argmax(np.round(predicted_classes), axis=1)
-
     def report(self, predicted_classes, test_Y):
+        predicted_classes = np.argmax(np.round(predicted_classes), axis=1)
         target_names = ["Class {}".format(i) for i in range(self.num_classes)]
         print(classification_report(test_Y, predicted_classes, target_names=target_names))
 

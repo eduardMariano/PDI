@@ -1,4 +1,4 @@
-from keras.datasets import fashion_mnist, cifar10
+from keras.datasets import fashion_mnist, cifar10, cifar100
 from tensorflow.python.keras.models import Sequential
 from keras.layers import Dense, Dropout, Flatten
 from keras.utils import to_categorical
@@ -18,8 +18,13 @@ class Multilayer_Perceptron:
         self.data_dim = [],
         self.data_size = data_size
 
-    def load_data(self):
-        return fashion_mnist.load_data()
+    def load_data(self, type):
+        if type == 1:
+            return fashion_mnist.load_data()
+        elif type == 2:
+            return cifar10.load_data()
+        elif type == 3:
+            return cifar100.load_data()
 
     def set_num_classes(self, train):
         self.classes = np.unique(train)
@@ -63,10 +68,8 @@ class Multilayer_Perceptron:
     def predict(self, test_X):
         return self.model.predict(test_X)
 
-    def format_predict(self, predicted_classes):
-        return np.argmax(np.round(predicted_classes), axis=1)
-
     def report(self, predicted_classes, test_Y):
+        predicted_classes = np.argmax(np.round(predicted_classes), axis=1)
         target_names = ["Class {}".format(i) for i in range(self.num_classes)]
         print(classification_report(test_Y, predicted_classes, target_names=target_names))
 
@@ -79,13 +82,13 @@ class Multilayer_Perceptron:
 
         epochs = range(self.epochs)
 
-        plt.plot(epochs, acc, 'bo', label='Training accuracy')
-        plt.plot(epochs, val_acc, 'b', label='Validation accuracy')
-        plt.title('Training and validation accuracy')
+        plt.plot(epochs, acc, 'bo', label='Acurácia de Treinamento')
+        plt.plot(epochs, val_acc, 'b', label='Acurácia de Validação')
+        plt.title('Acurácia de treinamento e validação')
         plt.legend()
         plt.figure()
-        plt.plot(epochs, loss, 'bo', label='Training loss')
-        plt.plot(epochs, val_loss, 'b', label='Validation loss')
-        plt.title('Training and validation loss')
+        plt.plot(epochs, loss, 'bo', label='Perda no treinamento')
+        plt.plot(epochs, val_loss, 'b', label='Perda na validação')
+        plt.title('Perda no treinamento e na validação')
         plt.legend()
         plt.show()
